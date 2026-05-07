@@ -43,14 +43,24 @@ echo "This will create a tunnel for: ${SUBDOMAIN}"
 echo ""
 
 if [ ! -f "$HOME/.cloudflared/cert.pem" ]; then
-    echo "Logging into Cloudflare (browser will open)..."
+    echo "Logging into Cloudflare..."
+    echo "Open this URL on any machine with a browser:"
     cloudflared tunnel login
 fi
 
 TUNNEL_NAME="sms-tunnel"
 
+echo "Deleting any existing tunnel named '$TUNNEL_NAME'..."
+cloudflared tunnel delete -f "$TUNNEL_NAME" 2>/dev/null || true
+
 echo "Creating tunnel: $TUNNEL_NAME"
-TUNNEL_ID=$(cloudflared tunnel create "$TUNNEL_NAME" 2>&1 | grep -oP 'with id \K[a-f0-9-]+')
+TUNNEL_OUTPUT=$(cloudflared tunnel create "$TUNNEL_NAME" 2>&1)
+echo "$TUNNEL_OUTPUT"
+TUNNEL_ID=$(echo "$TUNNEL_OUTPUT" | grep -oP 'with id \K[a-f0-9-]+')
+if [ -z "$TUNNEL_ID" ]; then
+    echo "ERROR: Failed to create tunnel. Check output above."
+    exit 1
+fi
 echo "Tunnel created: $TUNNEL_ID"
 
 echo "Setting up DNS route: ${SUBDOMAIN} -> tunnel"

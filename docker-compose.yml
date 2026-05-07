@@ -1,6 +1,6 @@
 services:
   ntfy:
-    image: binwiederhier/ntfy
+    image: docker.io/binwiederhier/ntfy
     container_name: ntfy
     restart: unless-stopped
     ports:
@@ -39,7 +39,7 @@ services:
         max-file: "3"
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: docker.io/cloudflare/cloudflared:latest
     container_name: cloudflared-tunnel
     restart: unless-stopped
     depends_on:
