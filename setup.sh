@@ -48,26 +48,13 @@ if [ ! -f "$HOME/.cloudflared/cert.pem" ]; then
 fi
 
 TUNNEL_NAME="sms-tunnel"
-TUNNEL_ID=$(cloudflared tunnel list -o json 2>/dev/null | python3 -c "
-import json, sys
-tunnels = json.load(sys.stdin)
-for t in tunnels:
-    if t['name'] == '$TUNNEL_NAME':
-        print(t['id'])
-        break
-" 2>/dev/null || true)
 
-if [ -z "$TUNNEL_ID" ]; then
-    echo "Creating tunnel: $TUNNEL_NAME"
-    TUNNEL_ID=$(cloudflared tunnel create "$TUNNEL_NAME" 2>&1 | grep -oP 'with id \K[a-f0-9-]+')
-    echo "Tunnel created: $TUNNEL_ID"
-else
-    echo "Using existing tunnel: $TUNNEL_ID"
-fi
+echo "Creating tunnel: $TUNNEL_NAME"
+TUNNEL_ID=$(cloudflared tunnel create "$TUNNEL_NAME" 2>&1 | grep -oP 'with id \K[a-f0-9-]+')
+echo "Tunnel created: $TUNNEL_ID"
 
 echo "Setting up DNS route: ${SUBDOMAIN} -> tunnel"
-cloudflared tunnel route dns --overwrite-dns "$TUNNEL_NAME" "$SUBDOMAIN" 2>/dev/null || \
-    cloudflared tunnel route dns "$TUNNEL_NAME" "$SUBDOMAIN"
+cloudflared tunnel route dns --overwrite-dns "$TUNNEL_NAME" "$SUBDOMAIN"
 
 # Copy credentials into project
 mkdir -p cloudflared
