@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 class Modem:
-    def __init__(self, port: str, baudrate: int = 115200):
+    def __init__(self, port: str, baudrate: int = 115200, pin: str | None = None):
         self.port = port
         self.baudrate = baudrate
+        self.pin = pin
         self._modem: GsmModem | None = None
 
     def connect(self, on_sms) -> None:
@@ -22,7 +23,7 @@ class Modem:
             baudrate=self.baudrate,
             smsReceivedCallbackFunc=sms_handler,
         )
-        self._modem.connect()
+        self._modem.connect(pin=self.pin)
         logger.info("Modem connected on %s, waiting for SMS", self.port)
 
     @property

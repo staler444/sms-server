@@ -16,6 +16,7 @@ logger = logging.getLogger('sms_server')
 def main() -> None:
     port = os.environ.get('SMS_PORT', '/dev/ttyUSB2')
     baudrate = int(os.environ.get('SMS_BAUDRATE', '115200'))
+    pin = os.environ.get('SIM_PIN') or None
     ntfy_server = os.environ.get('NTFY_SERVER', 'http://localhost:2586')
     ntfy_topic = os.environ.get('NTFY_TOPIC', 'sms-forward')
     ntfy_priority = os.environ.get('NTFY_PRIORITY', 'default')
@@ -40,7 +41,7 @@ def main() -> None:
     signal.signal(signal.SIGINT, handle_signal)
 
     while not shutdown:
-        modem = Modem(port=port, baudrate=baudrate)
+        modem = Modem(port=port, baudrate=baudrate, pin=pin)
         try:
             modem.connect(on_sms)
             logger.info("Listening for SMS on %s, forwarding to %s/%s",

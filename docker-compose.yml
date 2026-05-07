@@ -29,6 +29,7 @@ services:
     environment:
       - SMS_PORT=${SMS_DEVICE:-/dev/ttyUSB2}
       - SMS_BAUDRATE=${SMS_BAUDRATE:-115200}
+      - SIM_PIN=${SIM_PIN:-}
       - NTFY_SERVER=http://ntfy:80
       - NTFY_TOPIC=${NTFY_TOPIC:-sms-forward}
       - NTFY_PRIORITY=${NTFY_PRIORITY:-default}
