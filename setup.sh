@@ -31,6 +31,17 @@ else
 fi
 log "Using compose command: $COMPOSE_CMD"
 
+# Detect modem device group
+UUCP_GID=""
+if [ -e /dev/ttyUSB2 ]; then
+    UUCP_GID=$(stat -c '%g' /dev/ttyUSB2 2>/dev/null || echo "")
+fi
+if [ -z "$UUCP_GID" ]; then
+    UUCP_GID=$(getent group uucp 2>/dev/null | cut -d: -f3 || echo "986")
+fi
+log "Device group GID: $UUCP_GID"
+sed -i "s/group_add:.*/group_add: [\"$UUCP_GID\"]/" docker-compose.yml
+
 if [ ! -e /dev/ttyUSB2 ]; then
     warn "/dev/ttyUSB2 not found — SMS won't work until modem is plugged in"
 fi
