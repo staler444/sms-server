@@ -15,8 +15,13 @@ for cmd in docker cloudflared python3; do
     fi
 done
 
-if ! docker compose version &>/dev/null; then
-    echo "ERROR: docker compose plugin is required"
+COMPOSE_CMD=""
+if docker compose version &>/dev/null; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose &>/dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "ERROR: docker compose or docker-compose is required"
     exit 1
 fi
 
@@ -125,7 +130,7 @@ echo ""
 # --- Docker Compose ---
 echo "--- Starting Services ---"
 echo ""
-docker compose up -d --build
+$COMPOSE_CMD up -d --build
 
 echo ""
 echo "=== Setup Complete ==="
@@ -138,6 +143,6 @@ echo "On your phone: install ntfy app, set server to https://${SUBDOMAIN}"
 echo "Login with admin / your password, subscribe to 'sms-forward'"
 echo ""
 echo "Commands:"
-echo "  docker compose logs -f sms-server   # watch SMS activity"
-echo "  docker compose down                 # stop everything"
-echo "  docker compose up -d                # start everything"
+echo "  $COMPOSE_CMD logs -f sms-server   # watch SMS activity"
+echo "  $COMPOSE_CMD down                 # stop everything"
+echo "  $COMPOSE_CMD up -d                # start everything"
