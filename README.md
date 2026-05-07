@@ -29,6 +29,12 @@ On your phone, install the **ntfy** app:
 
 Send an SMS to the SIM — it pops up on your phone.
 
+## Troubleshooting
+
+**ntfy app can't connect / login fails:**
+1. Cloudflare Dashboard → your domain → **Security → Bots** → disable **Bot Fight Mode**
+2. Cloudflare Dashboard → your domain → **DNS → Records** → delete stale `sms` CNAME records from old tunnels
+
 ## Config
 
 After setup, `./setup.sh` generates a `.env` file. Edit it to customize:

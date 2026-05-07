@@ -104,10 +104,14 @@ ROUTE_OUTPUT=$(cloudflared tunnel route dns --overwrite-dns "$TUNNEL_NAME" "$SUB
 ROUTE_EXIT=$?
 echo "$ROUTE_OUTPUT"
 
-if [ $ROUTE_EXIT -ne 0 ]; then
-    warn "DNS route may have failed. If the tunnel doesn't work, delete the CNAME"
-    warn "record for 'sms' in Cloudflare DNS dashboard, then run:"
-    warn "  cloudflared tunnel route dns --overwrite-dns $TUNNEL_NAME $SUBDOMAIN"
+if echo "$ROUTE_OUTPUT" | grep -q "already configured"; then
+    warn ""
+    warn "DNS record for ${SUBDOMAIN} already exists on another tunnel."
+    warn "Go to Cloudflare Dashboard → DNS → Records → delete the 'sms' CNAME,"
+    warn "then run: cloudflared tunnel route dns ${TUNNEL_NAME} ${SUBDOMAIN}"
+    warn ""
+elif [ $ROUTE_EXIT -ne 0 ]; then
+    warn "DNS route creation failed. Check output above."
 fi
 
 # Copy credentials into project
@@ -203,6 +207,10 @@ echo "Topic:     sms-forward"
 echo ""
 echo "On your phone: install ntfy app, set server to https://${SUBDOMAIN}"
 echo "Login with admin / your password, subscribe to 'sms-forward'"
+echo ""
+echo "IMPORTANT: If the ntfy app can't connect or login fails:"
+echo "  1. Cloudflare Dashboard → ${DOMAIN} → Security → Bots → disable Bot Fight Mode"
+echo "  2. Cloudflare Dashboard → ${DOMAIN} → DNS → Records → delete stale 'sms' CNAMEs"
 echo ""
 echo "Commands:"
 echo "  $COMPOSE_CMD logs -f sms-server   # watch SMS activity"
