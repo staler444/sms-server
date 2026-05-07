@@ -64,7 +64,11 @@ fi
 echo "Tunnel created: $TUNNEL_ID"
 
 echo "Setting up DNS route: ${SUBDOMAIN} -> tunnel"
-cloudflared tunnel route dns --overwrite-dns "$TUNNEL_NAME" "$SUBDOMAIN"
+cloudflared tunnel route dns --overwrite-dns "$TUNNEL_NAME" "$SUBDOMAIN" 2>&1 || {
+    echo "WARNING: DNS route may already exist on old tunnel. Run in Cloudflare dashboard:"
+    echo "  DNS → Records → delete CNAME 'sms' pointing to old tunnel"
+    echo "  Then re-run: cloudflared tunnel route dns --overwrite-dns $TUNNEL_NAME $SUBDOMAIN"
+}
 
 # Copy credentials into project
 mkdir -p cloudflared
@@ -116,7 +120,8 @@ EOF
     docker exec ntfy-setup ntfy access admin '*' read-write
 
     docker stop ntfy-setup && docker rm ntfy-setup
-    chmod 666 ntfy-etc/user.db
+    sudo chown "$(whoami):$(whoami)" ntfy-etc/user.db 2>/dev/null || true
+    chmod 666 ntfy-etc/user.db 2>/dev/null || true
     echo "ntfy user 'admin' created"
 else
     echo "Keeping existing ntfy auth (make sure ntfy-etc/user.db exists)"
