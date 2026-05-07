@@ -40,7 +40,7 @@ if [ -z "$UUCP_GID" ]; then
     UUCP_GID=$(getent group uucp 2>/dev/null | cut -d: -f3 || echo "986")
 fi
 log "Device group GID: $UUCP_GID"
-sed -i "s/group_add:.*/group_add: [\"$UUCP_GID\"]/" docker-compose.yml
+sed -i "s/      - \"[0-9]*\"/      - \"$UUCP_GID\"/" docker-compose.yml
 
 if [ ! -e /dev/ttyUSB2 ]; then
     warn "/dev/ttyUSB2 not found — SMS won't work until modem is plugged in"
