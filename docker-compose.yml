@@ -1,0 +1,50 @@
+services:
+  ntfy:
+    image: binwiederhier/ntfy
+    container_name: ntfy
+    restart: unless-stopped
+    ports:
+      - "2586:80"
+    volumes:
+      - ./ntfy-cache:/var/cache/ntfy
+      - ./ntfy-etc:/etc/ntfy
+    command: serve
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  sms-server:
+    build: .
+    container_name: sms-server
+    restart: unless-stopped
+    depends_on:
+      ntfy:
+        condition: service_healthy
+    group_add:
+      - "986"
+    devices:
+      - "/dev/ttyUSB2:/dev/ttyUSB2"
+    environment:
+      - SMS_PORT=/dev/ttyUSB2
+      - SMS_BAUDRATE=115200
+      - NTFY_SERVER=http://ntfy:80
+      - NTFY_TOPIC=sms-forward
+      - NTFY_PRIORITY=default
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel
+    restart: unless-stopped
+    depends_on:
+      ntfy:
+        condition: service_healthy
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    command: tunnel --config /etc/cloudflared/config.yml run

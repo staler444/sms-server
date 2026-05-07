@@ -1,0 +1,23 @@
+# Sensitive - never commit
+ntfy-etc/user.db
+cloudflared/credentials.json
+cloudflared/config.yml
+
+# Generated at runtime
+ntfy-cache/
+__pycache__/
+*.pyc
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# venv (use system Python or Docker)
+venv/

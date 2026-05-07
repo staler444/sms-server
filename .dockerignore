@@ -1,0 +1,8 @@
+venv/
+ntfy-cache/
+ntfy-etc/
+cloudflared/
+__pycache__/
+*.pyc
+.git/
+.gitignore
