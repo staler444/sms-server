@@ -40,7 +40,20 @@ if [ -z "$UUCP_GID" ]; then
     UUCP_GID=$(getent group uucp 2>/dev/null | cut -d: -f3 || echo "986")
 fi
 log "Device group GID: $UUCP_GID"
-sed -i "s/      - \"[0-9]*\"/      - \"$UUCP_GID\"/" docker-compose.yml
+
+# Generate .env with all configurable values
+cat > .env << ENVEOF
+# Device config
+UUCP_GID=${UUCP_GID}
+SMS_DEVICE=${SMS_DEVICE:-/dev/ttyUSB2}
+SMS_BAUDRATE=${SMS_BAUDRATE:-115200}
+
+# ntfy config
+NTFY_PORT=${NTFY_PORT:-2586}
+NTFY_TOPIC=${NTFY_TOPIC:-sms-forward}
+NTFY_PRIORITY=${NTFY_PRIORITY:-default}
+ENVEOF
+log "Generated .env file"
 
 if [ ! -e /dev/ttyUSB2 ]; then
     warn "/dev/ttyUSB2 not found — SMS won't work until modem is plugged in"

@@ -2,6 +2,7 @@
 ntfy-etc/user.db
 cloudflared/credentials.json
 cloudflared/config.yml
+.env
 
 # Generated at runtime
 ntfy-cache/

@@ -4,7 +4,7 @@ services:
     container_name: ntfy
     restart: unless-stopped
     ports:
-      - "2586:80"
+      - "${NTFY_PORT:-2586}:80"
     volumes:
       - ./ntfy-cache:/var/cache/ntfy
       - ./ntfy-etc:/etc/ntfy
@@ -23,15 +23,15 @@ services:
       ntfy:
         condition: service_healthy
     group_add:
-      - "986"
+      - "${UUCP_GID:-986}"
     devices:
-      - "/dev/ttyUSB2:/dev/ttyUSB2"
+      - "${SMS_DEVICE:-/dev/ttyUSB2}:${SMS_DEVICE:-/dev/ttyUSB2}"
     environment:
-      - SMS_PORT=/dev/ttyUSB2
-      - SMS_BAUDRATE=115200
+      - SMS_PORT=${SMS_DEVICE:-/dev/ttyUSB2}
+      - SMS_BAUDRATE=${SMS_BAUDRATE:-115200}
       - NTFY_SERVER=http://ntfy:80
-      - NTFY_TOPIC=sms-forward
-      - NTFY_PRIORITY=default
+      - NTFY_TOPIC=${NTFY_TOPIC:-sms-forward}
+      - NTFY_PRIORITY=${NTFY_PRIORITY:-default}
     logging:
       driver: json-file
       options:
